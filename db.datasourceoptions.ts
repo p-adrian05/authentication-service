@@ -22,7 +22,7 @@ switch (process.env.NODE_ENV) {
     Object.assign(_DBOptions,{
       type: 'sqlite',
       database: 'test.sqlite',
-      migrationsRun: true,
+      synchronize: true
     });
     break;
   default:

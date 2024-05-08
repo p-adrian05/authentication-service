@@ -1,20 +1,21 @@
-import { Body, Controller, Injectable, Post } from '@nestjs/common';
-import { CreateUserDto } from '../dto/create-user.dto';
-import { AuthService } from '../service/auth.service';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { UserDto } from '../dto/user.dto';
+import { Serialize } from '../../interceptors/serialize.interceptor';
 import { UserService } from '../service/users.service';
+import { Roles } from '../../auth/decorators/roles.decorator';
+import { Role } from '../../roles/dto/role.enum';
 
 @Controller('users')
+@Serialize(UserDto)
 export class UsersController {
 
 
-  constructor(private authService: AuthService) {
+  constructor(private userService: UserService) {
   }
 
-
-  @Post("/signup")
-  async signUp(@Body() body: CreateUserDto) {
-    const user = await this.authService.signUp(body.email, body.password);
-    return user;
+  @Get("")
+  @Roles(Role.User)
+  getAllUser() {
+    return this.userService.getAllUser();
   }
-
 }

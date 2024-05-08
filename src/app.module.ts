@@ -8,6 +8,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DBOptions } from '../db.datasourceoptions';
 import { RolesService } from './roles/service/roles.service';
 import { RolesModule } from './roles/roles.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -29,7 +30,8 @@ import { RolesModule } from './roles/roles.module';
       }
     }),
     UsersModule,
-    RolesModule],
+    RolesModule,
+    AuthModule],
   controllers: [AppController],
   providers: [AppService,
     {

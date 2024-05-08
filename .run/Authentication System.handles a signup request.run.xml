@@ -1,0 +1,16 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Authentication System.handles a signup request" type="JavaScriptTestRunnerJest" nameIsGenerated="true">
+    <config-file value="$PROJECT_DIR$/test/jest-e2e.json" />
+    <node-interpreter value="project" />
+    <jest-package value="$PROJECT_DIR$/node_modules/jest" />
+    <working-dir value="$PROJECT_DIR$" />
+    <envs />
+    <scope-kind value="TEST" />
+    <test-file value="$PROJECT_DIR$/test/auth.e2e-spec.ts" />
+    <test-names>
+      <test-name value="Authentication System" />
+      <test-name value="handles a signup request" />
+    </test-names>
+    <method v="2" />
+  </configuration>
+</component>

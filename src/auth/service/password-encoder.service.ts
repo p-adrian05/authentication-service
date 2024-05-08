@@ -1,11 +1,6 @@
 import { hash, verify } from "@node-rs/argon2";
 import { Injectable } from '@nestjs/common';
 
-
-export interface PasswordHashingAlgorithm {
-  hash(password: string): Promise<string>;
-  verify(hash: string, password: string): Promise<boolean>;
-}
 export type TypedArray =
   | Uint8Array
   | Int8Array
@@ -18,10 +13,17 @@ export type TypedArray =
   | BigInt64Array
   | BigUint64Array;
 
+
+export interface PasswordHashingAlgorithm {
+  hash(password: string): Promise<string>;
+  verify(hash: string, password: string): Promise<boolean>;
+}
+
+
 const v0x13 = 1;
 
 @Injectable()
-export class PasswordEncoder implements PasswordHashingAlgorithm {
+export class Argon2Id implements PasswordHashingAlgorithm {
   constructor(options?: {
     memorySize?: number;
     iterations?: number;
@@ -30,7 +32,7 @@ export class PasswordEncoder implements PasswordHashingAlgorithm {
     secret?: ArrayBuffer | TypedArray;
   }) {
     this.memorySize = options?.memorySize ?? 19456;
-    this.iterations = options?.iterations ?? 4;
+    this.iterations = options?.iterations ?? 3;
     this.tagLength = options?.tagLength ?? 32;
     this.parallelism = options?.parallelism ?? 1;
     this.secret = options?.secret ?? null;

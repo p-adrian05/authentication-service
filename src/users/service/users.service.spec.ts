@@ -11,17 +11,18 @@ describe('UsersService', () => {
   let service: UserService;
   let roleService: Partial<RolesService>;
   let repo: Repository<User>;
+  const role:Role = {
+    id: 1,
+    name: 'User',
+    isDefault: true
+  }
   const user:User = {
     id: 1,
     email: 'user1@example.com',
     password: 'password1',
     active: true
   } as User;
-  const role:Role = {
-    id: 1,
-    name: 'User',
-    isDefault: true
-  }
+
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -38,7 +39,12 @@ describe('UsersService', () => {
           useValue: {
             create: jest.fn().mockReturnValue(user),
             save: jest.fn().mockImplementation((user:User) => Promise.resolve(user)),
-            findOneBy: jest.fn().mockReturnValue(Promise.resolve(user))
+            findOneBy: jest.fn().mockReturnValue(Promise.resolve(user)),
+            createQueryBuilder:jest.fn().mockImplementation(() => ({
+              leftJoinAndSelect: jest.fn().mockReturnThis(),
+              where: jest.fn().mockReturnThis(),
+              getOne: jest.fn().mockResolvedValue(Object.assign(user, {roles:[role]})),
+            }))
           },
         },
       ],
@@ -66,8 +72,19 @@ describe('UsersService', () => {
     const expectedUser = await service.findById(user.id);
 
     expect(expectedUser).toEqual(user);
-    expect(repo.findOneBy).toBeCalledWith({id:user.id});
+    expect(expectedUser.roles).toEqual([role]);
+    expect(repo.createQueryBuilder).toBeCalledWith('user');
   });
+
+    it('should return a user by email', async () => {
+      const email = 'user1@example.com';
+
+      const result = await service.findByEmail(email);
+
+      expect(repo.createQueryBuilder).toBeCalledWith('user');
+      expect(result).toEqual(user);
+      expect(result.roles).toEqual([role]);
+    });
 
   it('returns null when id is not provided', async () => {
     expect(await service.findById(null)).toBeNull();
@@ -76,6 +93,7 @@ describe('UsersService', () => {
   it('throws an error when user is already created with the same email', async () => {
     await expect(service.create(user.email, user.password)).rejects.toThrow( 'Email already in use');
 
+
     expect(repo.findOneBy).toBeCalledWith({ email: user.email });
   });
 
@@ -83,7 +101,7 @@ describe('UsersService', () => {
     const expectedUser = await service.findByEmail(user.email);
 
     expect(expectedUser).toEqual(user);
-    expect(repo.findOneBy).toBeCalledWith({email:user.email});
+    expect(repo.createQueryBuilder).toBeCalledWith('user');
   });
   it('updates a user', async () => {
     const attrs = { name: "adrian"};

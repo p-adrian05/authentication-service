@@ -3,9 +3,7 @@ import { User } from '../entity/user.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RolesService } from '../../roles/service/roles.service';
-import { UpdateUserDto } from '../update-user.dto';
-
-
+import { UpdateUserDto } from '../dto/update-user.dto';
 
 
 @Injectable()
@@ -30,26 +28,37 @@ export class UserService {
     if (!id) {
       return null;
     }
-    return this.repository.findOneBy({ id });
+    return this.repository.createQueryBuilder('user')
+      .leftJoinAndSelect('user.roles', 'role')
+      .where('user.id = :id', { id })
+      .getOne();
   }
 
   findByEmail(email: string): Promise<User> {
-    return this.repository.findOneBy({ email });
+    return this.repository.createQueryBuilder('user')
+      .leftJoinAndSelect('user.roles', 'role')
+      .where('user.email = :email', { email })
+      .getOne();
   }
 
   async update(id: number, attrs:UpdateUserDto): Promise<User> {
-    const user = await this.findById(id);
+    const user = await this.repository.findOneBy({ id });
     if (!user) throw new NotFoundException('User not found');
     user.name = attrs.name;
     return this.repository.save(user);
   }
 
   async remove(id: number): Promise<User> {
-    const user = await this.findById(id);
+    const user = await this.repository.findOneBy({ id });
     if (!user) throw new NotFoundException('User not found');
 
     user.active = false;
     return this.repository.save(user);
   }
 
+  async getAllUser(): Promise<User[]>{
+    return this.repository.createQueryBuilder('user')
+      .leftJoinAndSelect('user.roles', 'role')
+      .getMany();
+  }
 }

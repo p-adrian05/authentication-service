@@ -4,8 +4,9 @@ import { Serialize } from '../../interceptors/serialize.interceptor';
 import { UserService } from '../service/users.service';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { Role } from '../../roles/dto/role.enum';
+import { Routes } from '../../app.routes';
 
-@Controller('users')
+@Controller(Routes.USERS)
 @Serialize(UserDto)
 export class UsersController {
 
@@ -13,9 +14,9 @@ export class UsersController {
   constructor(private userService: UserService) {
   }
 
-  @Get("")
+  @Get()
   @Roles(Role.User)
-  getAllUser() {
+  getAllUser(){
     return this.userService.getAllUser();
   }
 }

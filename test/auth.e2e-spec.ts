@@ -21,7 +21,7 @@ describe('Authentication System', () => {
     const email = 'test@tescfvfcgtsdc.com';
     const password = 'passwprd';
     return request(app.getHttpServer())
-      .post('/users/signup')
+      .post('/auth/register')
       .send({email, password})
       .expect(201)
       .then((res)=>{
@@ -38,18 +38,17 @@ describe('Authentication System', () => {
     const email = 'test@test.com';
     const password = 'asd';
     const res = await request(app.getHttpServer())
-      .post('/users/signup')
+      .post('/auth/register')
       .send({email, password})
       .expect(201);
 
     request(app.getHttpServer())
-      .post('/users/signin')
+      .post('/auth/login')
       .send({email, password})
       .expect(200)
       .then((res)=>{
-        const {id} = res.body;
-        expect(id).toBeDefined();
-        expect(email).toEqual(email);
+        const {access_token} = res.body;
+        expect(access_token).toBeDefined();
       })
   });
 

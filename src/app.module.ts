@@ -9,6 +9,8 @@ import { DBOptions } from '../db.datasourceoptions';
 import { RolesService } from './roles/service/roles.service';
 import { RolesModule } from './roles/roles.module';
 import { AuthModule } from './auth/auth.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -31,7 +33,10 @@ import { AuthModule } from './auth/auth.module';
     }),
     UsersModule,
     RolesModule,
-    AuthModule],
+    AuthModule,
+    EventEmitterModule.forRoot(),
+    EmailModule
+  ],
   controllers: [AppController],
   providers: [AppService,
     {

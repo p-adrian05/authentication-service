@@ -5,12 +5,14 @@ import { Argon2Id } from './password-encoder.service';
 import { AuthService } from './auth.service';
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 describe('UsersService', () => {
   let service: AuthService;
   let userService: Partial<UserService>;
   let passwordEncoder: Argon2Id;
   let jwtService: JwtService;
+  let eventEmitter: EventEmitter2;
 
   const user:User = {
     id: 1,
@@ -41,6 +43,12 @@ describe('UsersService', () => {
           useValue: {
             signAsync: jest.fn()
           }
+        },
+        {
+          provide: EventEmitter2,
+          useValue: {
+            emit: jest.fn()
+          }
         }
       ],
     }).compile();
@@ -49,22 +57,25 @@ describe('UsersService', () => {
     userService = module.get<UserService>(UserService);
     passwordEncoder = module.get<Argon2Id>(Argon2Id);
     jwtService = module.get<JwtService>(JwtService);
+    eventEmitter = module.get<EventEmitter2>(EventEmitter2);
   });
 
   it('should sign up a new user', async () => {
     const email = 'newuser@example.com';
     const password = 'password1';
+    const user = { id: 2, email, password: 'hashedPassword', name: 'New User'};
 
     userService.findByEmail = jest.fn().mockResolvedValue(null);
     passwordEncoder.hash = jest.fn().mockResolvedValue('hashedPassword');
-    userService.create = jest.fn().mockResolvedValue({ id: 2, email, password: 'hashedPassword' });
+    userService.create = jest.fn().mockResolvedValue(user);
 
     const result = await service.signUp(email, password);
 
     expect(userService.findByEmail).toBeCalledWith(email);
     expect(passwordEncoder.hash).toBeCalledWith(password);
     expect(userService.create).toBeCalledWith(email, 'hashedPassword');
-    expect(result).toEqual({ id: 2, email, password: 'hashedPassword' });
+    expect(eventEmitter.emit).toBeCalledWith('user.created', { id: user.id, email,  name: user.name});
+    expect(result).toEqual( user);
   });
 
   it('should throw an error when signing up with an existing email', async () => {

@@ -7,6 +7,7 @@ const _DBOptions = {
   }
 };
 switch (process.env.NODE_ENV) {
+
   case 'development':
     Object.assign(_DBOptions,{
       type: 'postgres',
@@ -15,7 +16,7 @@ switch (process.env.NODE_ENV) {
       username: process.env.DB_USER || 'postgres',
       password: process.env.DB_PASSWORD || 'secret',
       database: process.env.DB_NAME || 'postgres',
-      migrationsRun: true
+      synchronize: true
     });
     break;
   case 'test':
